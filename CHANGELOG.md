@@ -2,9 +2,75 @@
 
 <!-- version list -->
 
-## v1.0.0 (2026-03-27)
+## v5.3.1 (2026-04-19)
 
-- Initial Release
+### Bug Fixes
+
+- Replace assert with ValueError for state validation
+  ([#1219](https://github.com/appium/python-client/pull/1219),
+  [`2193837`](https://github.com/appium/python-client/commit/2193837fc0af579231f08315431c6a2347bc2b65))
+
+### Chores
+
+- **deps-dev**: Bump ruff from 0.15.10 to 0.15.11
+  ([#1217](https://github.com/appium/python-client/pull/1217),
+  [`30dad44`](https://github.com/appium/python-client/commit/30dad44a9ab991c14134119b876ca80c21d10e88))
+
+- **deps-dev**: Bump ruff from 0.15.7 to 0.15.8
+  ([#1210](https://github.com/appium/python-client/pull/1210),
+  [`7181b20`](https://github.com/appium/python-client/commit/7181b201d0cd94561fe5f07e8bcb0bf03b8ca0e0))
+
+- **deps-dev**: Bump ruff from 0.15.8 to 0.15.9
+  ([#1214](https://github.com/appium/python-client/pull/1214),
+  [`21fdecb`](https://github.com/appium/python-client/commit/21fdecbdf975515087e4c88e04c3356b288f5ac6))
+
+- **deps-dev**: Bump ruff from 0.15.9 to 0.15.10
+  ([#1216](https://github.com/appium/python-client/pull/1216),
+  [`9016e94`](https://github.com/appium/python-client/commit/9016e9431dd9e8c0218e1499c516dcf70642b7e4))
+
+
+## v5.3.0 (2026-03-28)
+
+### Bug Fixes
+
+- **test**: Simplify assertion for AndroidKeyMetastate in test_has_some_metastates
+  ([#1211](https://github.com/appium/python-client/pull/1211),
+  [`ad8c5c9`](https://github.com/appium/python-client/commit/ad8c5c9ce33e85d6b417f2545df83b32e56c7fd0))
+
+### Chores
+
+- **deps-dev**: Bump pytest-cov from 7.0.0 to 7.1.0
+  ([#1209](https://github.com/appium/python-client/pull/1209),
+  [`8466c27`](https://github.com/appium/python-client/commit/8466c27b8759fc18169a48d7f7ae49cc33fce0a9))
+
+- **deps-dev**: Bump ruff from 0.15.4 to 0.15.5
+  ([#1205](https://github.com/appium/python-client/pull/1205),
+  [`628a731`](https://github.com/appium/python-client/commit/628a73111c315860754a7e0cc88f3b68917f3fc2))
+
+- **deps-dev**: Bump ruff from 0.15.5 to 0.15.6
+  ([#1207](https://github.com/appium/python-client/pull/1207),
+  [`9b81d2a`](https://github.com/appium/python-client/commit/9b81d2a42fbca4d4c4c4f2d54ce183c627479f85))
+
+- **deps-dev**: Bump ruff from 0.15.6 to 0.15.7
+  ([#1208](https://github.com/appium/python-client/pull/1208),
+  [`339fff9`](https://github.com/appium/python-client/commit/339fff93d0ac7472140e7869790e203f5160ad60))
+
+### Continuous Integration
+
+- **deps**: Bump futureware-tech/simulator-action from 4 to 5
+  ([#1206](https://github.com/appium/python-client/pull/1206),
+  [`a3c13dc`](https://github.com/appium/python-client/commit/a3c13dc98e9d50fb19bd1e37bdbdf86887587144))
+
+### Features
+
+- Add AndroidKeyMetastate class for keyboard metastate constants
+  ([#1211](https://github.com/appium/python-client/pull/1211),
+  [`ad8c5c9`](https://github.com/appium/python-client/commit/ad8c5c9ce33e85d6b417f2545df83b32e56c7fd0))
+
+- **android**: Add AndroidKeyMetastate class for keyboard metastate constants
+  ([#1211](https://github.com/appium/python-client/pull/1211),
+  [`ad8c5c9`](https://github.com/appium/python-client/commit/ad8c5c9ce33e85d6b417f2545df83b32e56c7fd0))
+
 
 ## v5.2.7 (2026-03-05)
 
