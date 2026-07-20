@@ -31,9 +31,7 @@ class Applications(CanExecuteCommands, CanExecuteScripts):
         Returns:
             Union['WebDriver', 'Applications']: Self instance
         """
-        ext_name = 'mobile: backgroundApp'
-        args = {'seconds': seconds}
-        self.execute_script(ext_name, args)
+        self.execute_script('mobile: backgroundApp', {'seconds': seconds})
         return self
 
     def is_app_installed(self, bundle_id: str) -> bool:
@@ -45,9 +43,8 @@ class Applications(CanExecuteCommands, CanExecuteScripts):
         Returns:
             `True` if app is installed
         """
-        ext_name = 'mobile: isAppInstalled'
         return self.execute_script(
-            ext_name,
+            'mobile: isAppInstalled',
             {
                 'bundleId': bundle_id,
                 'appId': bundle_id,
@@ -99,9 +96,8 @@ class Applications(CanExecuteCommands, CanExecuteScripts):
         Returns:
             Union['WebDriver', 'Applications']: Self instance
         """
-        ext_name = 'mobile: removeApp'
         self.execute_script(
-            ext_name,
+            'mobile: removeApp',
             {
                 'appId': app_id,
                 'bundleId': app_id,
@@ -123,9 +119,8 @@ class Applications(CanExecuteCommands, CanExecuteScripts):
         Returns:
             True if the app has been successfully terminated
         """
-        ext_name = 'mobile: terminateApp'
         return self.execute_script(
-            ext_name,
+            'mobile: terminateApp',
             {
                 'appId': app_id,
                 'bundleId': app_id,
@@ -143,9 +138,8 @@ class Applications(CanExecuteCommands, CanExecuteScripts):
         Returns:
             Union['WebDriver', 'Applications']: Self instance
         """
-        ext_name = 'mobile: activateApp'
         self.execute_script(
-            ext_name,
+            'mobile: activateApp',
             {
                 'appId': app_id,
                 'bundleId': app_id,
@@ -163,9 +157,8 @@ class Applications(CanExecuteCommands, CanExecuteScripts):
             One of possible application state constants. See ApplicationState
             class for more details.
         """
-        ext_name = 'mobile: queryAppState'
         return self.execute_script(
-            ext_name,
+            'mobile: queryAppState',
             {
                 'appId': app_id,
                 'bundleId': app_id,
@@ -183,13 +176,12 @@ class Applications(CanExecuteCommands, CanExecuteScripts):
         Returns:
             The key is string id and the value is the content.
         """
-        ext_name = 'mobile: getAppStrings'
         data = {}
         if language is not None:
             data['language'] = language
         if string_file is not None:
             data['stringFile'] = string_file
-        return self.execute_script(ext_name, data)
+        return self.execute_script('mobile: getAppStrings', data)
 
     def _add_commands(self) -> None:
         pass
