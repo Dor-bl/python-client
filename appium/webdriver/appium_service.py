@@ -22,6 +22,12 @@ from typing import Any
 
 from selenium.webdriver.remote.remote_connection import urllib3
 
+try:
+    import certifi
+
+    _ca_certs: str | None = certifi.where()
+except ImportError:
+    _ca_certs = None
 DEFAULT_HOST = '127.0.0.1'
 DEFAULT_PORT = 4723
 STARTUP_TIMEOUT_MS = 60000
@@ -208,7 +214,10 @@ def is_service_listening(url: str, timeout: float = 5, custom_validator: Callabl
         True if Appium server is running before the timeout
     """
     time_started_sec = time.perf_counter()
-    conn = urllib3.PoolManager(timeout=1.0)
+    pool_kwargs: dict[str, Any] = {'timeout': 1.0, 'cert_reqs': 'CERT_REQUIRED'}
+    if _ca_certs:
+        pool_kwargs['ca_certs'] = _ca_certs
+    conn = urllib3.PoolManager(**pool_kwargs)
     while time.perf_counter() < time_started_sec + timeout:
         if custom_validator is not None:
             custom_validator()
