@@ -35,8 +35,6 @@ class MobileCommand:
     IS_LOCKED = 'isLocked'
     LOCK = 'lock'
     UNLOCK = 'unlock'
-    GET_DEVICE_TIME_GET = 'getDeviceTimeGet'
-    GET_DEVICE_TIME_POST = 'getDeviceTimePost'
     INSTALL_APP = 'installApp'
     REMOVE_APP = 'removeApp'
     IS_APP_INSTALLED = 'isAppInstalled'
