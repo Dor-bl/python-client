@@ -65,7 +65,7 @@ jobs:
         defaults write com.apple.iphonesimulator PasteboardAutomaticSync -bool false
         open -Fn "$(xcode-select --print-path)/Applications/Simulator.app"
     - name: Prepare iOS simulator
-      uses: futureware-tech/simulator-action@v5
+      uses: futureware-tech/simulator-action@v4
       with:
         model: ${{ env.IPHONE_MODEL }}
         os_version: ${{ env.IOS_VERSION }}
@@ -245,8 +245,8 @@ jobs:
       XCODE_VERSION: 16.4
       IOS_VERSION: 18.5
       IPHONE_MODEL: iPhone 16
-      FLUTTER_ANDROID_APP: "https://github.com/AppiumTestDistribution/appium-flutter-server/releases/latest/download/app-debug.apk"
-      FLUTTER_IOS_APP: "https://github.com/AppiumTestDistribution/appium-flutter-server/releases/latest/download/ios.zip"
+      FLUTTER_ANDROID_APP: "https://github.com/AppiumTestDistribution/appium-flutter-server/releases/download/0.0.33/app-debug.apk"
+      FLUTTER_IOS_APP: "https://github.com/AppiumTestDistribution/appium-flutter-server/releases/download/0.0.33/ios.zip"
       PREBUILT_WDA_PATH: ${{ github.workspace }}/wda/WebDriverAgentRunner-Runner.app
 
     steps:
@@ -333,7 +333,7 @@ jobs:
         defaults write com.apple.iphonesimulator PasteboardAutomaticSync -bool false
         open -Fn "$(xcode-select --print-path)/Applications/Simulator.app"
 
-    - uses: futureware-tech/simulator-action@v5
+    - uses: futureware-tech/simulator-action@v4
       if: matrix.e2e-tests == 'flutter-ios'
       with:
         # https://github.com/actions/runner-images/blob/main/images/macos/macos-14-arm64-Readme.md
