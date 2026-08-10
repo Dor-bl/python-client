@@ -50,6 +50,7 @@ def make_options() -> FlutterOptions:
             'newCommandTimeout': 120,
             'uiautomator2ServerInstallTimeout': 120000,
             'adbExecTimeout': 120000,
+            'androidInstallTimeout': 240000,
             'app': os.environ['FLUTTER_ANDROID_APP'],
             'autoGrantPermissions': True,
         }
