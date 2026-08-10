@@ -51,8 +51,6 @@ class MobileCommand:
     PUSH_FILE = 'pushFile'
     PULL_FILE = 'pullFile'
     PULL_FOLDER = 'pullFolder'
-    GET_CLIPBOARD = 'getClipboard'
-    SET_CLIPBOARD = 'setClipboard'
     FINGER_PRINT = 'fingerPrint'
     GET_SETTINGS = 'getSettings'
     UPDATE_SETTINGS = 'updateSettings'
