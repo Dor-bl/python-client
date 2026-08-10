@@ -29,6 +29,7 @@ def make_options(app: Optional[str] = None) -> UiAutomator2Options:
     options.automation_name = 'UIAutomator2'
     options.new_command_timeout = 240
     options.uiautomator2_server_install_timeout = 120000
+    options.uiautomator2_server_launch_timeout = 120000
     options.adb_exec_timeout = 120000
 
     if app is not None:
