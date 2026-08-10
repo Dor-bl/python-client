@@ -22,6 +22,11 @@ class TestWebDriverDeviceTime:
     def test_device_time(self):
         driver = android_w3c_driver()
         httpretty.register_uri(
+            httpretty.GET,
+            appium_command('/session/1234567890/appium/device/system_time'),
+            body='{"value": "2019-01-05T14:46:44+09:00"}',
+        )
+        httpretty.register_uri(
             httpretty.POST,
             appium_command('/session/1234567890/execute/sync'),
             body='{"value": "2019-01-05T14:46:44+09:00"}',
@@ -32,6 +37,11 @@ class TestWebDriverDeviceTime:
     def test_get_device_time(self):
         driver = android_w3c_driver()
         httpretty.register_uri(
+            httpretty.GET,
+            appium_command('/session/1234567890/appium/device/system_time'),
+            body='{"value": "2019-01-05T14:46:44+09:00"}',
+        )
+        httpretty.register_uri(
             httpretty.POST,
             appium_command('/session/1234567890/execute/sync'),
             body='{"value": "2019-01-05T14:46:44+09:00"}',
@@ -41,6 +51,11 @@ class TestWebDriverDeviceTime:
     @httpretty.activate
     def test_get_formatted_device_time(self):
         driver = android_w3c_driver()
+        httpretty.register_uri(
+            httpretty.POST,
+            appium_command('/session/1234567890/appium/device/system_time'),
+            body='{"value": "2019-01-08"}',
+        )
         httpretty.register_uri(
             httpretty.POST,
             appium_command('/session/1234567890/execute/sync'),
