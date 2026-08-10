@@ -51,10 +51,12 @@ class TestWebDriverLockAndroid:
     def test_unlock(self):
         driver = android_w3c_driver()
         httpretty.register_uri(
-            httpretty.POST, appium_command('/session/1234567890/execute/sync'), responses=[
+            httpretty.POST,
+            appium_command('/session/1234567890/execute/sync'),
+            responses=[
                 httpretty.Response(body='{"value": true}'),
                 httpretty.Response(body='{"value": ""}'),
-            ]
+            ],
         )
         assert isinstance(driver.unlock(), WebDriver)
 
@@ -92,10 +94,12 @@ class TestWebDriverLockIOS:
     def test_unlock(self):
         driver = ios_w3c_driver()
         httpretty.register_uri(
-            httpretty.POST, appium_command('/session/1234567890/execute/sync'), responses=[
+            httpretty.POST,
+            appium_command('/session/1234567890/execute/sync'),
+            responses=[
                 httpretty.Response(body='{"value": true}'),
                 httpretty.Response(body='{"value": ""}'),
-            ]
+            ],
         )
         assert isinstance(driver.unlock(), WebDriver)
 
