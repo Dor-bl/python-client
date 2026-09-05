@@ -304,10 +304,14 @@ class WebDriver(
 
         if not self.caps:
             raise ValueError('Driver capabilities must be defined')
-        if not {direct_protocol, direct_host, direct_port, direct_path}.issubset(set(self.caps)):
-            message = 'Direct connect capabilities from server were:\n'
-            for key in [direct_protocol, direct_host, direct_port, direct_path]:
-                message += f"{key}: '{self.caps.get(key, '')}' "
+        if not {direct_protocol, direct_host, direct_port, direct_path}.issubset(self.caps):
+            message = (
+                f'Direct connect capabilities from server were:\n'
+                f"{direct_protocol}: '{self.caps.get(direct_protocol, '')}' "
+                f"{direct_host}: '{self.caps.get(direct_host, '')}' "
+                f"{direct_port}: '{self.caps.get(direct_port, '')}' "
+                f"{direct_path}: '{self.caps.get(direct_path, '')}' "
+            )
             logger.debug(message)
             return
 
