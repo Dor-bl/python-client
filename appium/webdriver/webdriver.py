@@ -439,7 +439,7 @@ class WebDriver(
         # call the overridden command binders from all mixin classes except for
         # appium.webdriver.webdriver.WebDriver and its sub-classes
         # https://github.com/appium/python-client/issues/342
-        for mixin_class in filter(lambda x: not issubclass(x, WebDriver), self.__class__.__mro__):
+        for mixin_class in (x for x in self.__class__.__mro__ if not issubclass(x, WebDriver)):
             if hasattr(mixin_class, self._add_commands.__name__):
                 get_atter = getattr(mixin_class, self._add_commands.__name__, None)
                 if get_atter:
