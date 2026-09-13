@@ -2,8 +2,8 @@ name: Release
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ master ]
+  # push:
+  #   branches: [ master ]
 
 permissions:
   contents: write
@@ -11,16 +11,12 @@ permissions:
 
 jobs:
   release:
-    # Releases are cut from the upstream repository only. Without this guard the
-    # workflow also runs on forks, where semantic-release rewrites the version in
-    # pyproject.toml, commits to the default branch and attempts a PyPI upload.
-    if: github.repository == 'appium/python-client'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
