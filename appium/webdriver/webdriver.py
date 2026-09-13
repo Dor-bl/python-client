@@ -474,17 +474,6 @@ class WebDriver(
                     get_atter(self)
 
         self.command_executor.add_command(Command.GET_STATUS, 'GET', '/status')
-
-        # TODO Move commands for element to webelement
-        self.command_executor.add_command(Command.CLEAR, 'POST', '/session/$sessionId/element/$id/clear')
-        self.command_executor.add_command(
-            Command.LOCATION_IN_VIEW,
-            'GET',
-            '/session/$sessionId/element/$id/location_in_view',
-        )
-
-        # MJSONWP for Selenium v4
-        self.command_executor.add_command(Command.IS_ELEMENT_DISPLAYED, 'GET', '/session/$sessionId/element/$id/displayed')
         self.command_executor.add_command(Command.GET_CAPABILITIES, 'GET', '/session/$sessionId')
 
         self.command_executor.add_command(Command.GET_SCREEN_ORIENTATION, 'GET', '/session/$sessionId/orientation')
