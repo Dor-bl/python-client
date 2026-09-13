@@ -69,12 +69,12 @@ def format_stacktrace(original: None | str | Sequence) -> list[str]:
                 continue
 
             line = frame.get('lineNumber', '')
-            file = frame.get('fileName', '<anonymous>')
-            if line:
-                file = f'{file}:{line}'
-            meth = frame.get('methodName', '<anonymous>')
-            if 'className' in frame:
-                meth = f'{frame["className"]}.{meth}'
+            file = f'{frame.get("fileName", "<anonymous>")}:{line}' if line else frame.get('fileName', '<anonymous>')
+            meth = (
+                f'{frame["className"]}.{frame.get("methodName", "<anonymous>")}'
+                if 'className' in frame
+                else frame.get('methodName', '<anonymous>')
+            )
             result.append(f'    at {meth} ({file})')
     except TypeError:
         pass
