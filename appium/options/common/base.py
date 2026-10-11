@@ -109,7 +109,7 @@ class AppiumOptions(
                 return key
             return key if ':' in key else f'{APPIUM_PREFIX}{key}'
 
-        processed_caps = {process_key(k): v for k, v in copy.deepcopy(capabilities).items()}
+        processed_caps = {process_key(k): v for k, v in capabilities.items()}
         return {'capabilities': {'firstMatch': [{}], 'alwaysMatch': processed_caps}}
 
     def to_w3c(self) -> dict:
