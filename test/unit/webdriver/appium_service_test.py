@@ -24,6 +24,14 @@ class TestAppiumService:
     def test_get_instance(self):
         assert AppiumService()
 
+    def test_find_executable_found(self, monkeypatch):
+        monkeypatch.setattr(appium_service.shutil, 'which', lambda cmd: f'/usr/bin/{cmd}')
+        assert appium_service.find_executable('node') == '/usr/bin/node'
+
+    def test_find_executable_not_found(self, monkeypatch):
+        monkeypatch.setattr(appium_service.shutil, 'which', lambda cmd: None)
+        assert appium_service.find_executable('non_existent_exe') is None
+
     @pytest.mark.parametrize(
         ('status', 'expected_result', 'expected_elapsed', 'expected_requests'),
         [(200, True, 0.0, 1), (503, False, 5.0, 10)],
