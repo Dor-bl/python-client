@@ -181,7 +181,8 @@ class AppiumService:
         if not self.is_running:
             return False
 
-        assert self._cmd
+        if not self._cmd:
+            raise AppiumServiceError('Appium service command has not been initialized')
         try:
             return is_service_listening(
                 _make_server_url(self._cmd),

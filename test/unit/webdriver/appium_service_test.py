@@ -53,3 +53,17 @@ class TestAppiumService:
         assert service.is_listening is expected_result
         assert clock.perf_counter.return_value == expected_elapsed
         assert connection.request.call_args_list == [call('HEAD', 'http://127.0.0.1:4723/status')] * expected_requests
+
+    def test_is_listening_raises_error_when_cmd_is_empty(self):
+        service = AppiumService()
+        process = Mock()
+        process.poll.return_value = None
+        service._process = process
+        service._cmd = []
+
+        with pytest.raises(appium_service.AppiumServiceError, match='Appium service command has not been initialized'):
+            _ = service.is_listening
+
+    def test_is_listening_returns_false_when_not_running(self):
+        service = AppiumService()
+        assert service.is_listening is False
