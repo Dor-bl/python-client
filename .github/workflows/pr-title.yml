@@ -8,3 +8,4 @@ jobs:
     uses: appium/appium-workflows/.github/workflows/pr-title.yml@main
     with:
       config-preset: angular
+      headerPattern: '^(?:.*?\s)?(\w+)(?:\(([\w$.\-* ]+)\))?: (.*)$'
