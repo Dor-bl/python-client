@@ -314,10 +314,11 @@ class WebDriver(
 
         if not self.caps:
             raise ValueError('Driver capabilities must be defined')
-        keys = (direct_protocol, direct_host, direct_port, direct_path)
-        if not set(keys).issubset(self.caps):
-            details = ' '.join(f"{key}: '{self.caps.get(key, '')}'" for key in keys)
-            logger.debug(f'Direct connect capabilities from server were:\n{details} ')
+        if not {direct_protocol, direct_host, direct_port, direct_path}.issubset(set(self.caps)):
+            message = 'Direct connect capabilities from server were:\n'
+            for key in [direct_protocol, direct_host, direct_port, direct_path]:
+                message += f"{key}: '{self.caps.get(key, '')}' "
+            logger.debug(message)
             return
 
         protocol = self.caps[direct_protocol]
@@ -457,9 +458,8 @@ class WebDriver(
                 driver.orientation = 'landscape'
         """
         allowed_values = ['LANDSCAPE', 'PORTRAIT']
-        v = value.upper()
-        if v in allowed_values:
-            self.execute(Command.SET_SCREEN_ORIENTATION, {'orientation': v})
+        if value.upper() in allowed_values:
+            self.execute(Command.SET_SCREEN_ORIENTATION, {'orientation': value})
         else:
             raise WebDriverException("You can only set the orientation to 'LANDSCAPE' and 'PORTRAIT'")
 

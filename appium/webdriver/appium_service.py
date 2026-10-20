@@ -14,6 +14,7 @@
 
 import os
 import re
+import shutil
 import subprocess as sp
 import sys
 import time
@@ -225,21 +226,7 @@ def is_service_listening(url: str, timeout: float = 5, custom_validator: Callabl
 
 
 def find_executable(executable: str) -> str | None:
-    path = os.environ['PATH']
-    paths = path.split(os.pathsep)
-    _, ext = os.path.splitext(executable)
-    if sys.platform == 'win32' and not ext:
-        executable = executable + '.exe'
-
-    if os.path.isfile(executable):
-        return executable
-
-    for p in paths:
-        full_path = os.path.join(p, executable)
-        if os.path.isfile(full_path):
-            return full_path
-
-    return None
+    return shutil.which(executable)
 
 
 def get_node() -> str:
