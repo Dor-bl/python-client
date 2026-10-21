@@ -101,3 +101,15 @@ class TestWebElement:
         httpretty.last_request()
 
         assert loc == location_in_view
+
+    @httpretty.activate
+    def test_is_displayed(self):
+        driver = android_w3c_driver()
+        httpretty.register_uri(
+            httpretty.GET,
+            appium_command('/session/1234567890/element/element_id/displayed'),
+            body=json.dumps({'value': True}),
+        )
+
+        element = MobileWebElement(driver, 'element_id')
+        assert element.is_displayed() is True

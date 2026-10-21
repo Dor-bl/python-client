@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING
 
 from selenium.webdriver.common.utils import keys_to_typing
 from selenium.webdriver.remote.command import Command as RemoteCommand
+from selenium.webdriver.remote.webdriver import WebDriver as Remote
 from selenium.webdriver.remote.webelement import WebElement as SeleniumWebElement
 from typing_extensions import Self
 
@@ -34,6 +35,23 @@ class WebElement(SeleniumWebElement):
 
         def find_elements(self, by: str, value: str | dict | None = None) -> list[Self]:  # type: ignore[override]
             ...
+
+    def __init__(self, parent: Remote, id_: int | str) -> None:
+        super().__init__(parent, id_)  # type: ignore[arg-type]
+        self._add_commands()
+
+    def _add_commands(self) -> None:
+        self._parent.command_executor.add_command(Command.CLEAR, 'POST', '/session/$sessionId/element/$id/clear')
+        self._parent.command_executor.add_command(
+            Command.LOCATION_IN_VIEW,
+            'GET',
+            '/session/$sessionId/element/$id/location_in_view',
+        )
+        self._parent.command_executor.add_command(
+            Command.IS_ELEMENT_DISPLAYED,
+            'GET',
+            '/session/$sessionId/element/$id/displayed',
+        )
 
     def get_attribute(self, name: str) -> str | dict | None:  # type: ignore[override]
         """Gets the given attribute or property of the element.
