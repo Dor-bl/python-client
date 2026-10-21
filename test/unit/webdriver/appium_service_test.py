@@ -53,3 +53,20 @@ class TestAppiumService:
         assert service.is_listening is expected_result
         assert clock.perf_counter.return_value == expected_elapsed
         assert connection.request.call_args_list == [call('HEAD', 'http://127.0.0.1:4723/status')] * expected_requests
+
+
+class TestGetNpm:
+    def test_get_npm_success_posix(self, monkeypatch):
+        monkeypatch.setattr(appium_service.sys, 'platform', 'darwin')
+        monkeypatch.setattr(appium_service, 'find_executable', lambda executable: f'/usr/local/bin/{executable}')
+        assert appium_service.get_npm() == '/usr/local/bin/npm'
+
+    def test_get_npm_success_win32(self, monkeypatch):
+        monkeypatch.setattr(appium_service.sys, 'platform', 'win32')
+        monkeypatch.setattr(appium_service, 'find_executable', lambda executable: f'C:\\Program Files\\nodejs\\{executable}')
+        assert appium_service.get_npm() == 'C:\\Program Files\\nodejs\\npm.cmd'
+
+    def test_get_npm_not_found_raises_error(self, monkeypatch):
+        monkeypatch.setattr(appium_service, 'find_executable', lambda executable: None)
+        with pytest.raises(appium_service.AppiumServiceError, match='Node Package Manager executable cannot be found'):
+            appium_service.get_npm()
