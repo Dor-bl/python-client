@@ -25,6 +25,7 @@ from appium.options.android import UiAutomator2Options
 from appium.webdriver.appium_connection import AppiumConnection
 from appium.webdriver.client_config import AppiumClientConfig
 from appium.webdriver.webdriver import ExtensionBase, WebDriver, _get_remote_connection_and_client_config
+from appium.webdriver.webelement import WebElement as MobileWebElement
 from test.helpers.constants import SERVER_URL_BASE
 from test.unit.helper.test_helper import (
     android_w3c_driver,
@@ -509,6 +510,19 @@ class TestWebDriverWebDriver:
             driver.orientation = 'INVALID'
 
         assert "You can only set the orientation to 'LANDSCAPE' and 'PORTRAIT'" in str(excinfo.value)
+
+    @httpretty.activate
+    def test_create_web_element(self):
+        driver = android_w3c_driver()
+        element_str = driver.create_web_element('test-element-id-str')
+        assert isinstance(element_str, MobileWebElement)
+        assert element_str.id == 'test-element-id-str'
+        assert element_str.parent == driver
+
+        element_int = driver.create_web_element(12345)
+        assert isinstance(element_int, MobileWebElement)
+        assert element_int.id == 12345
+        assert element_int.parent == driver
 
     @httpretty.activate
     def test_extention_command_check(self):
