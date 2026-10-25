@@ -27,7 +27,11 @@ def extract_const_attributes(cls: type) -> dict[str, Any]:
     Returns:
         dict with constants attributes and values in the class
     """
-    return {attr: value for attr, value in vars(cls).items() if not callable(getattr(cls, attr)) and attr.isupper()}
+    return {
+        attr: value
+        for attr, value in vars(cls).items()
+        if attr.isupper() and not callable(value) and not isinstance(value, classmethod)
+    }
 
 
 def library_version() -> str:
