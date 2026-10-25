@@ -53,3 +53,20 @@ class TestAppiumService:
         assert service.is_listening is expected_result
         assert clock.perf_counter.return_value == expected_elapsed
         assert connection.request.call_args_list == [call('HEAD', 'http://127.0.0.1:4723/status')] * expected_requests
+
+    def test_is_listening_handles_http_error(self, monkeypatch):
+        clock = Mock()
+        clock.perf_counter.side_effect = [0.0, 0.1, 0.6]
+
+        def advance_time(seconds):
+            pass
+
+        clock.sleep.side_effect = advance_time
+        monkeypatch.setattr(appium_service, 'time', clock)
+
+        connection = Mock()
+        connection.request.side_effect = appium_service.urllib3.exceptions.HTTPError('Connection failed')
+        monkeypatch.setattr(appium_service.urllib3, 'PoolManager', Mock(return_value=connection))
+
+        assert appium_service.is_service_listening('http://127.0.0.1:4723/status', timeout=0.5) is False
+        assert connection.request.call_count == 1

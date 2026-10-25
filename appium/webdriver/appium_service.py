@@ -23,6 +23,8 @@ from typing import Any
 
 from selenium.webdriver.remote.remote_connection import urllib3
 
+from appium.common.logger import logger
+
 DEFAULT_HOST = '127.0.0.1'
 DEFAULT_PORT = 4723
 STARTUP_TIMEOUT_MS = 60000
@@ -218,8 +220,8 @@ def is_service_listening(url: str, timeout: float = 5, custom_validator: Callabl
             resp = conn.request('HEAD', url)
             if resp.status < HTTP_STATUS_ERROR:
                 return True
-        except urllib3.exceptions.HTTPError:
-            pass
+        except urllib3.exceptions.HTTPError as err:
+            logger.debug('HTTP Error checking if Appium service is listening at %s: %s', url, err)
         time.sleep(STATE_CHECK_INTERVAL_MS / 1000.0)
     return False
 
