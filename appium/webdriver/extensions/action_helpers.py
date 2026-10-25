@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast, overload
 
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.actions import interaction
@@ -132,34 +132,107 @@ class ActionHelpers:
             actions.perform()
         return self
 
-    def swipe(self, start_x: int, start_y: int, end_x: int, end_y: int, duration: int = 0) -> Self:
+    @overload
+    def swipe(
+        self,
+        start_x: tuple[int, int] | list[int],
+        start_y: tuple[int, int] | list[int],
+        duration: int = 0,
+    ) -> Self: ...
+
+    @overload
+    def swipe(
+        self,
+        start_x: int,
+        start_y: int,
+        end_x: int,
+        end_y: int,
+        duration: int = 0,
+    ) -> Self: ...
+
+    def swipe(
+        self,
+        start_x: tuple[int, int] | list[int] | int | None = None,
+        start_y: tuple[int, int] | list[int] | int | None = None,
+        *args: Any,
+        duration: int = 0,
+        **kwargs: Any,
+    ) -> Self:
         """Swipe from one point to another point, for an optional duration.
 
         Args:
-            start_x: x-coordinate at which to start
-            start_y: y-coordinate at which to start
-            end_x: x-coordinate at which to stop
-            end_y: y-coordinate at which to stop
+            start_x: x-coordinate at which to start, or (x, y) tuple/list for start point
+            start_y: y-coordinate at which to start, or (x, y) tuple/list for end point
+            *args: Positionally passed end_x, end_y, and optional duration
             duration: defines the swipe speed as time taken to swipe from point a to point b, in ms.
+            **kwargs: Keyword arguments such as start_point, end_point, end_x, end_y
 
         Usage:
+            driver.swipe((100, 100), (100, 400))
             driver.swipe(100, 100, 100, 400)
+            driver.swipe(start_x=100, start_y=100, end_x=100, end_y=400, duration=500)
 
         Returns:
             Union['WebDriver', 'ActionHelpers']: Self instance
         """
+        sx, sy = self._extract_start_point(start_x, start_y, **kwargs)
+        ex, ey, duration = self._extract_end_point_and_duration(start_x, start_y, args, duration, **kwargs)
+
         touch_input = PointerInput(interaction.POINTER_TOUCH, 'touch')
 
         actions = ActionChains(cast('WebDriver', self))
         actions.w3c_actions = ActionBuilder(self, mouse=touch_input)
-        actions.w3c_actions.pointer_action.move_to_location(start_x, start_y)
+        actions.w3c_actions.pointer_action.move_to_location(sx, sy)
         actions.w3c_actions.pointer_action.pointer_down()
         if duration > 0:
             actions.w3c_actions = ActionBuilder(self, mouse=touch_input, duration=duration)
-        actions.w3c_actions.pointer_action.move_to_location(end_x, end_y)
+        actions.w3c_actions.pointer_action.move_to_location(ex, ey)
         actions.w3c_actions.pointer_action.release()
         actions.perform()
         return self
+
+    def _extract_start_point(
+        self,
+        start_x: tuple[int, int] | list[int] | int | None,
+        start_y: tuple[int, int] | list[int] | int | None,
+        **kwargs: Any,
+    ) -> tuple[int, int]:
+        if 'start_point' in kwargs:
+            sp = kwargs['start_point']
+            return sp[0], sp[1]
+        if isinstance(start_x, (tuple, list)):
+            return start_x[0], start_x[1]
+        if start_x is not None:
+            if start_y is None or isinstance(start_y, (tuple, list)):
+                raise ValueError('start_y must be an integer when start_x is an integer.')
+            return int(start_x), int(start_y)
+        raise ValueError('Start coordinates or start point must be provided.')
+
+    def _extract_end_point_and_duration(
+        self,
+        start_x: tuple[int, int] | list[int] | int | None,
+        start_y: tuple[int, int] | list[int] | int | None,
+        args: tuple[Any, ...],
+        duration: int,
+        **kwargs: Any,
+    ) -> tuple[int, int, int]:
+        if 'end_point' in kwargs:
+            ep = kwargs['end_point']
+            return ep[0], ep[1], duration
+        if isinstance(start_y, (tuple, list)) and isinstance(start_x, (tuple, list)):
+            d = int(args[0]) if args and duration == 0 else duration
+            return start_y[0], start_y[1], d
+        if len(args) > 1:
+            end_x_val, end_y_val, *rest = args
+            d = int(rest[0]) if rest and duration == 0 else duration
+            return int(end_x_val), int(end_y_val), d
+        if 'end_x' in kwargs and 'end_y' in kwargs:
+            return int(kwargs['end_x']), int(kwargs['end_y']), duration
+        if args and isinstance(args[0], (tuple, list)):
+            ep, *rest = args
+            d = int(rest[0]) if rest and duration == 0 else duration
+            return ep[0], ep[1], d
+        raise ValueError('End coordinates or end point must be provided.')
 
     def flick(self, start_x: int, start_y: int, end_x: int, end_y: int) -> Self:
         """Flick from one point to another point.
