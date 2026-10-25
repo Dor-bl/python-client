@@ -13,12 +13,23 @@
 # limitations under the License.
 
 
+from dataclasses import dataclass
+
 from typing_extensions import Self
 
 from appium.protocols.webdriver.can_execute_commands import CanExecuteCommands
 from appium.protocols.webdriver.can_execute_scripts import CanExecuteScripts
 
 from ..mobilecommand import MobileCommand as Command
+
+
+@dataclass
+class UserLocation:
+    latitude: float | str
+    longitude: float | str
+    altitude: float | str | None = None
+    speed: float | str | None = None
+    satellites: float | str | None = None
 
 
 class Location(CanExecuteCommands, CanExecuteScripts):
@@ -36,8 +47,8 @@ class Location(CanExecuteCommands, CanExecuteScripts):
 
     def set_location(
         self,
-        latitude: float | str,
-        longitude: float | str,
+        latitude: UserLocation | float | str,
+        longitude: float | str | None = None,
         altitude: float | str | None = None,
         speed: float | str | None = None,
         satellites: float | str | None = None,
@@ -45,7 +56,7 @@ class Location(CanExecuteCommands, CanExecuteScripts):
         """Set the location of the device
 
         Args:
-            latitude: String or numeric value between -90.0 and 90.00
+            latitude: UserLocation instance or String/numeric value between -90.0 and 90.00
             longitude: String or numeric value between -180.0 and 180.0
             altitude: String or numeric value (Android real device only)
             speed: String or numeric value larger than 0.0 (Android real devices only)
@@ -54,18 +65,34 @@ class Location(CanExecuteCommands, CanExecuteScripts):
         Returns:
             Union['WebDriver', 'Location']: Self instance
         """
+        if isinstance(latitude, UserLocation):
+            loc = latitude
+            lat = loc.latitude
+            lon = loc.longitude
+            alt = loc.altitude
+            spd = loc.speed
+            sat = loc.satellites
+        else:
+            if longitude is None:
+                raise ValueError('longitude must be provided when latitude is not a UserLocation object')
+            lat = latitude
+            lon = longitude
+            alt = altitude
+            spd = speed
+            sat = satellites
+
         data = {
             'location': {
-                'latitude': latitude,
-                'longitude': longitude,
+                'latitude': lat,
+                'longitude': lon,
             }
         }
-        if altitude is not None:
-            data['location']['altitude'] = altitude
-        if speed is not None:
-            data['location']['speed'] = speed
-        if satellites is not None:
-            data['location']['satellites'] = satellites
+        if alt is not None:
+            data['location']['altitude'] = alt
+        if spd is not None:
+            data['location']['speed'] = spd
+        if sat is not None:
+            data['location']['satellites'] = sat
         self.execute(Command.SET_LOCATION, data)
         return self
 

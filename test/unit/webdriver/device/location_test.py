@@ -13,7 +13,9 @@
 # limitations under the License.
 
 import httpretty
+import pytest
 
+from appium.webdriver.extensions.location import UserLocation
 from appium.webdriver.webdriver import WebDriver
 from test.unit.helper.test_helper import android_w3c_driver, appium_command, get_httpretty_request_body
 
@@ -29,6 +31,39 @@ class TestWebDriverLocation:
 
         d = get_httpretty_request_body(httpretty.last_request())
         assert d['script'] == 'mobile: toggleGps'
+
+    @httpretty.activate
+    def test_set_location_user_location(self):
+        driver = android_w3c_driver()
+        httpretty.register_uri(httpretty.POST, appium_command('/session/1234567890/location'))
+        location = UserLocation(11.1, 22.2, 33.3, 23.2, 12)
+        assert isinstance(driver.set_location(location), WebDriver)
+
+        d = get_httpretty_request_body(httpretty.last_request())
+        assert abs(d['location']['latitude'] - 11.1) <= FLT_EPSILON
+        assert abs(d['location']['longitude'] - 22.2) <= FLT_EPSILON
+        assert abs(d['location']['altitude'] - 33.3) <= FLT_EPSILON
+        assert abs(d['location']['speed'] - 23.2) <= FLT_EPSILON
+        assert abs(d['location']['satellites'] - 12) <= FLT_EPSILON
+
+    @httpretty.activate
+    def test_set_location_user_location_partial(self):
+        driver = android_w3c_driver()
+        httpretty.register_uri(httpretty.POST, appium_command('/session/1234567890/location'))
+        location = UserLocation(11.1, 22.2, speed=23.2)
+        assert isinstance(driver.set_location(location), WebDriver)
+
+        d = get_httpretty_request_body(httpretty.last_request())
+        assert abs(d['location']['latitude'] - 11.1) <= FLT_EPSILON
+        assert abs(d['location']['longitude'] - 22.2) <= FLT_EPSILON
+        assert abs(d['location']['speed'] - 23.2) <= FLT_EPSILON
+        assert d['location'].get('altitude') is None
+
+    @httpretty.activate
+    def test_set_location_invalid_longitude_missing(self):
+        driver = android_w3c_driver()
+        with pytest.raises(ValueError, match='longitude must be provided'):
+            driver.set_location(11.1)
 
     @httpretty.activate
     def test_set_location_float(self):
