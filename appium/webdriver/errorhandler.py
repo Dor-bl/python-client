@@ -20,6 +20,7 @@ import selenium.common.exceptions as sel_exceptions
 from selenium.webdriver.remote import errorhandler
 
 import appium.common.exceptions as appium_exceptions
+from appium.common.logger import logger
 
 ERROR_TO_EXC_MAPPING: dict[str, type[sel_exceptions.WebDriverException]] = {
     'element click intercepted': sel_exceptions.ElementClickInterceptedException,
@@ -76,8 +77,8 @@ def format_stacktrace(original: None | str | Sequence) -> list[str]:
             if 'className' in frame:
                 meth = f'{frame["className"]}.{meth}'
             result.append(f'    at {meth} ({file})')
-    except TypeError:
-        pass
+    except TypeError as e:
+        logger.debug('Failed to format stacktrace frame: %s', e)
     return result
 
 
