@@ -23,6 +23,8 @@ from typing import Any
 
 from selenium.webdriver.remote.remote_connection import urllib3
 
+from appium.common.logger import logger
+
 DEFAULT_HOST = '127.0.0.1'
 DEFAULT_PORT = 4723
 STARTUP_TIMEOUT_MS = 60000
@@ -323,7 +325,7 @@ def _make_server_url(args: list[str]) -> str:
     try:
         IPv6Address(host)
     except AddressValueError:
-        pass
+        logger.debug('Host %s is not a valid IPv6 address', host)
     else:
         host = f'[{host}]'
     return f'{_parse_protocol(args)}://{host}:{_parse_port(args)}{_make_status_path(args)}'
