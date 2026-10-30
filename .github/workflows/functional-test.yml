@@ -373,7 +373,6 @@ jobs:
         sleep 15
         xcrun simctl terminate booted com.apple.mobilesafari || true
 
-
     - name: Run IOS tests
       if: matrix.e2e-tests == 'flutter-ios'
       run: |
