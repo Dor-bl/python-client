@@ -60,6 +60,8 @@ def make_options() -> FlutterOptions:
             'platformVersion': os.environ['IOS_VERSION'],
             'allowTouchIdEnroll': True,
             'wdaLaunchTimeout': 240000,
+            'wdaStartupRetries': 3,
+            'wdaStartupRetryInterval': 20000,
             'wdaLocalPort': get_wda_port(),
             'eventTimings': True,
             'app': os.environ['FLUTTER_IOS_APP'],

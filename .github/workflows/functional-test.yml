@@ -15,6 +15,7 @@ env:
   APPIUM_TEST_SERVER_HOST: '127.0.0.1'
   PYTHONUNBUFFERED: 1
   UV_LOCKED: 'true'
+  UV_VERSION: '0.11.32'
 
 jobs:
   ios_test:
@@ -49,6 +50,21 @@ jobs:
       with:
         xcode-version: ${{ env.XCODE_VERSION }}
 
+    - name: Set up Python
+      uses: actions/setup-python@v7
+      with:
+        python-version: 3.14
+
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v10.3.1
+      with:
+        enable-cache: true
+        python-version: '3.14'
+        version: ${{ env.UV_VERSION }}
+
+    - name: Install Python dependencies
+      run: uv sync
+
     - name: Install Appium and drivers
       run: |
         npm install -g appium
@@ -62,11 +78,8 @@ jobs:
         host: ${{ env.APPIUM_TEST_SERVER_HOST }}
         server_args: '--relaxed-security'
 
-    - name: Start iOS Simulator UI
-      run: |
-        defaults write com.apple.iphonesimulator PasteboardAutomaticSync -bool false
-        open -Fn "$(xcode-select --print-path)/Applications/Simulator.app"
     - name: Prepare iOS simulator
+      timeout-minutes: 20
       uses: futureware-tech/simulator-action@v6
       with:
         model: ${{ env.IPHONE_MODEL }}
@@ -77,16 +90,19 @@ jobs:
     - name: Finalize iOS simulator boot
       run: xcrun --sdk iphonesimulator --show-sdk-version
 
-    - name: Set up Python
-      uses: actions/setup-python@v7
-      with:
-        python-version: 3.14
+    - name: Start iOS Simulator UI
+      run: |
+        defaults write com.apple.iphonesimulator PasteboardAutomaticSync -bool false
+        open -Fn "$(xcode-select --print-path)/Applications/Simulator.app"
 
-    - name: Set up uv
-      uses: astral-sh/setup-uv@v10.3.1
-      with:
-        enable-cache: true
-        python-version: '3.14'
+    - name: Warm up iOS simulator
+      # The first app launch on a fresh simulator is often slow enough to make
+      # the first Appium session time out, so do it once before the tests.
+      run: |
+        xcrun simctl install booted "$PREBUILT_WDA_PATH"
+        xcrun simctl launch booted com.apple.mobilesafari
+        sleep 15
+        xcrun simctl terminate booted com.apple.mobilesafari || true
 
     - name: Run Tests
       run: |
@@ -271,6 +287,16 @@ jobs:
       with:
         python-version: 3.14
 
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v10.3.1
+      with:
+        enable-cache: true
+        python-version: '3.14'
+        version: ${{ env.UV_VERSION }}
+
+    - name: Install Python dependencies
+      run: uv sync
+
     - name: Install Node.js
       uses: actions/setup-node@v7
       with:
@@ -305,12 +331,6 @@ jobs:
         server_args: '--relaxed-security'
         log_file: appium-${{ matrix.e2e-tests }}.log
 
-    - name: Set up uv
-      uses: astral-sh/setup-uv@v10.3.1
-      with:
-        enable-cache: true
-        python-version: '3.14'
-
     - name: Run Android tests
       if: matrix.e2e-tests == 'flutter-android'
       uses: reactivecircus/android-emulator-runner@v2
@@ -322,14 +342,10 @@ jobs:
         disable-spellchecker: true
         disable-animations: true
 
-    - name: Start iOS Simulator UI
+    - name: Prepare iOS simulator
+      uses: futureware-tech/simulator-action@v6
       if: matrix.e2e-tests == 'flutter-ios'
-      run: |
-        defaults write com.apple.iphonesimulator PasteboardAutomaticSync -bool false
-        open -Fn "$(xcode-select --print-path)/Applications/Simulator.app"
-
-    - uses: futureware-tech/simulator-action@v6
-      if: matrix.e2e-tests == 'flutter-ios'
+      timeout-minutes: 20
       with:
         # https://github.com/actions/runner-images/blob/main/images/macos/macos-14-arm64-Readme.md
         model: ${{ env.IPHONE_MODEL }}
@@ -340,6 +356,23 @@ jobs:
     - name: Finalize iOS simulator boot
       if: matrix.e2e-tests == 'flutter-ios'
       run: xcrun --sdk iphonesimulator --show-sdk-version
+
+    - name: Start iOS Simulator UI
+      if: matrix.e2e-tests == 'flutter-ios'
+      run: |
+        defaults write com.apple.iphonesimulator PasteboardAutomaticSync -bool false
+        open -Fn "$(xcode-select --print-path)/Applications/Simulator.app"
+
+    - name: Warm up iOS simulator
+      if: matrix.e2e-tests == 'flutter-ios'
+      # The first app launch on a fresh simulator is often slow enough to make
+      # the first Appium session time out, so do it once before the tests.
+      run: |
+        xcrun simctl install booted "$PREBUILT_WDA_PATH"
+        xcrun simctl launch booted com.apple.mobilesafari
+        sleep 15
+        xcrun simctl terminate booted com.apple.mobilesafari || true
+
 
     - name: Run IOS tests
       if: matrix.e2e-tests == 'flutter-ios'

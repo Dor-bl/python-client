@@ -28,7 +28,8 @@ if TYPE_CHECKING:
     from appium.webdriver.webdriver import WebDriver
 
 
-@pytest.fixture
+# One session for the whole module: creating a session on CI simulators is slow and flaky.
+@pytest.fixture(scope='module')
 def driver() -> Generator['WebDriver', None, None]:
     """Create and configure Safari driver for testing."""
     options = make_options()
