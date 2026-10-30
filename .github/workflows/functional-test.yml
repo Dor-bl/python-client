@@ -1,10 +1,8 @@
 name: Functional Tests
 
 on:
-  # Run by manual at this time
+  # Manual only: these jobs use long-running macOS runners and are too costly to run on every PR push
   workflow_dispatch:
-  pull_request:
-    branches: [ master ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
