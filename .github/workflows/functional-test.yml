@@ -110,6 +110,7 @@ jobs:
     - name: Warm up WebDriverAgent
       # Start and quit one Appium session so WDA's first launch happens here, not in a test.
       timeout-minutes: 12
+      continue-on-error: true
       run: uv run python -m test.functional.ios.helper.warm_up
       env:
         LOCAL_PREBUILT_WDA: ${{ env.PREBUILT_WDA_PATH }}
@@ -388,6 +389,7 @@ jobs:
       if: matrix.e2e-tests == 'flutter-ios'
       # Start and quit one Appium session so WDA's first launch happens here, not in a test.
       timeout-minutes: 12
+      continue-on-error: true
       run: uv run python -m test.functional.ios.helper.warm_up
       env:
         LOCAL_PREBUILT_WDA: ${{ env.PREBUILT_WDA_PATH }}
