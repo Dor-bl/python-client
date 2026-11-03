@@ -20,6 +20,7 @@ import pytest
 
 from appium import webdriver
 from appium.webdriver.client_config import AppiumClientConfig
+from test.functional.test_helper import create_session_with_wda_retry
 from test.helpers.constants import SERVER_URL_BASE
 
 from .helper.options import make_options
@@ -28,7 +29,8 @@ if TYPE_CHECKING:
     from appium.webdriver.webdriver import WebDriver
 
 
-@pytest.fixture
+# One session for the whole module: creating a session on CI simulators is slow and flaky.
+@pytest.fixture(scope='module')
 def driver() -> Generator['WebDriver', None, None]:
     """Create and configure Safari driver for testing."""
     options = make_options()
@@ -39,7 +41,7 @@ def driver() -> Generator['WebDriver', None, None]:
 
     client_config = AppiumClientConfig(remote_server_addr=SERVER_URL_BASE)
     client_config.timeout = 600
-    driver = webdriver.Remote(options=options, client_config=client_config)
+    driver = create_session_with_wda_retry(lambda: webdriver.Remote(options=options, client_config=client_config))
 
     # Fresh iOS 17.4 simulator may not show up the webview context with "safari"
     # after a fresh simlator instance creation.
