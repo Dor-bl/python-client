@@ -107,6 +107,13 @@ jobs:
         sleep 15
         xcrun simctl terminate booted com.apple.mobilesafari || true
 
+    - name: Warm up WebDriverAgent
+      # Start and quit one Appium session so WDA's first launch happens here, not in a test.
+      timeout-minutes: 12
+      run: uv run python -m test.functional.ios.helper.warm_up
+      env:
+        LOCAL_PREBUILT_WDA: ${{ env.PREBUILT_WDA_PATH }}
+
     - name: Run Tests
       run: |
         uv run pytest -v ${{ matrix.test_targets.target}} \
@@ -376,6 +383,14 @@ jobs:
         xcrun simctl launch booted com.apple.mobilesafari
         sleep 15
         xcrun simctl terminate booted com.apple.mobilesafari || true
+
+    - name: Warm up WebDriverAgent
+      if: matrix.e2e-tests == 'flutter-ios'
+      # Start and quit one Appium session so WDA's first launch happens here, not in a test.
+      timeout-minutes: 12
+      run: uv run python -m test.functional.ios.helper.warm_up
+      env:
+        LOCAL_PREBUILT_WDA: ${{ env.PREBUILT_WDA_PATH }}
 
     - name: Run IOS tests
       if: matrix.e2e-tests == 'flutter-ios'
