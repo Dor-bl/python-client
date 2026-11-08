@@ -18,13 +18,11 @@ from typing import TYPE_CHECKING
 from selenium.webdriver.common.utils import keys_to_typing
 from selenium.webdriver.remote.command import Command as RemoteCommand
 from selenium.webdriver.remote.remote_connection import RemoteConnection
+from selenium.webdriver.remote.webdriver import WebDriver as Remote
 from selenium.webdriver.remote.webelement import WebElement as SeleniumWebElement
 from typing_extensions import Self
 
 from .mobilecommand import MobileCommand as Command
-
-if TYPE_CHECKING:
-    from selenium.webdriver.common.by import By
 
 
 class WebElement(SeleniumWebElement):
@@ -33,24 +31,25 @@ class WebElement(SeleniumWebElement):
 
     if TYPE_CHECKING:
 
-        def find_element(self, by: str | By = By.ID, value: str | dict | None = None) -> Self: ...
-
-        def find_elements(self, by: str | By = By.ID, value: str | dict | None = None) -> list[Self]:  # type: ignore[override]
+        def find_element(self, by: str, value: str | dict | None = None) -> Self:  # type: ignore[override]
             ...
 
-    @staticmethod
-    def add_commands(command_executor: RemoteConnection) -> None:
-        """Registers the element endpoints Appium supports on top of Selenium's.
+        def find_elements(self, by: str, value: str | dict | None = None) -> list[Self]:  # type: ignore[override]
+            ...
 
-        Called once by the Appium WebDriver when it sets up its command executor.
-        """
+    def __init__(self, parent: Remote, id_: int | str) -> None:
+        super().__init__(parent, id_)  # type: ignore[arg-type]
+        self.add_commands(self._parent.command_executor)
+
+    @classmethod
+    def add_commands(cls, command_executor: RemoteConnection) -> None:
+        """Register element-specific commands to the given command executor."""
         command_executor.add_command(Command.CLEAR, 'POST', '/session/$sessionId/element/$id/clear')
         command_executor.add_command(
             Command.LOCATION_IN_VIEW,
             'GET',
             '/session/$sessionId/element/$id/location_in_view',
         )
-        # MJSONWP for Selenium v4
         command_executor.add_command(
             Command.IS_ELEMENT_DISPLAYED,
             'GET',

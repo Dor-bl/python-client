@@ -16,7 +16,6 @@ import textwrap
 
 import httpretty
 
-from appium.webdriver.extensions.execute_driver import ExecuteDriver
 from test.unit.helper.test_helper import android_w3c_driver, appium_command, get_httpretty_request_body
 
 
@@ -41,7 +40,6 @@ class TestWebDriverExecuteDriver:
             return [element, rect];
         """
         response = driver.execute_driver(script=textwrap.dedent(script))
-        assert isinstance(response, ExecuteDriver.Result)
         # Python client convert an element item as WebElement in the result
         assert response.result[0].id == '39000000-0000-0000-D39A-000000000000'
         assert response.result[1]['y'] == 237

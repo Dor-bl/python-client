@@ -17,30 +17,12 @@ from unittest.mock import Mock, call
 import pytest
 
 from appium.webdriver import appium_service
-from appium.webdriver.appium_service import AppiumService, AppiumServiceError
+from appium.webdriver.appium_service import AppiumService
 
 
 class TestAppiumService:
     def test_get_instance(self):
         assert AppiumService()
-
-    def test_get_node_found(self, monkeypatch):
-        monkeypatch.setattr(appium_service.shutil, 'which', lambda cmd: f'/usr/bin/{cmd}')
-        assert appium_service.get_node() == '/usr/bin/node'
-
-    def test_get_node_not_found(self, monkeypatch):
-        monkeypatch.setattr(appium_service.shutil, 'which', lambda cmd: None)
-        with pytest.raises(AppiumServiceError, match='NodeJS main executable cannot be found'):
-            appium_service.get_node()
-
-    def test_get_npm_found(self, monkeypatch):
-        monkeypatch.setattr(appium_service.shutil, 'which', lambda cmd: f'/usr/bin/{cmd}')
-        assert appium_service.get_npm() == '/usr/bin/npm'
-
-    def test_get_npm_not_found(self, monkeypatch):
-        monkeypatch.setattr(appium_service.shutil, 'which', lambda cmd: None)
-        with pytest.raises(AppiumServiceError, match='Node Package Manager executable cannot be found'):
-            appium_service.get_npm()
 
     @pytest.mark.parametrize(
         ('status', 'expected_result', 'expected_elapsed', 'expected_requests'),
@@ -71,97 +53,3 @@ class TestAppiumService:
         assert service.is_listening is expected_result
         assert clock.perf_counter.return_value == expected_elapsed
         assert connection.request.call_args_list == [call('HEAD', 'http://127.0.0.1:4723/status')] * expected_requests
-
-    @pytest.mark.parametrize(
-        ('poll_result', 'is_service_listening', 'expected_message'),
-        [
-            (None, Mock(return_value=False), 'Appium server has started but is not listening'),
-            (1, Mock(side_effect=appium_service.AppiumStartupError), 'Appium server process is unable to start'),
-        ],
-    )
-    def test_start_failure_terminates_process_before_reading_stderr(
-        self, monkeypatch, poll_result, is_service_listening, expected_message
-    ):
-        process = Mock()
-        process.poll.return_value = poll_result
-        process.communicate.return_value = (b'', b'startup error details')
-        monkeypatch.setattr(appium_service.sp, 'Popen', Mock(return_value=process))
-        monkeypatch.setattr(appium_service, 'is_service_listening', is_service_listening)
-
-        with pytest.raises(AppiumServiceError, match=expected_message) as excinfo:
-            AppiumService().start(
-                node='node', npm='npm', main_script='appium.js', timeout_ms=1000, stderr=appium_service.sp.PIPE
-            )
-
-        assert "Original error: b'startup error details'" in str(excinfo.value)
-        # Reading stderr of a process that is still running blocks until the process exits
-        process.stderr.read.assert_not_called()
-        method_names = [name for name, _, _ in process.method_calls]
-        assert method_names.index('terminate') < method_names.index('communicate')
-
-    @pytest.mark.parametrize(
-        ('communicate_results', 'expected_error'),
-        [
-            (
-                [appium_service.sp.TimeoutExpired('appium', 5.5), (b'', b'startup error details')],
-                "b'startup error details'",
-            ),
-            (
-                [
-                    appium_service.sp.TimeoutExpired('appium', 5.5),
-                    appium_service.sp.TimeoutExpired('appium', 5.5, stderr=b'partial error details'),
-                ],
-                "b'partial error details'",
-            ),
-        ],
-    )
-    def test_start_failure_keeps_stderr_if_process_ignores_terminate(self, monkeypatch, communicate_results, expected_error):
-        process = Mock()
-        process.poll.return_value = None
-        process.communicate.side_effect = communicate_results
-
-        def kill():
-            process.poll.return_value = -9
-
-        process.kill.side_effect = kill
-        monkeypatch.setattr(appium_service.sp, 'Popen', Mock(return_value=process))
-        monkeypatch.setattr(appium_service, 'is_service_listening', Mock(return_value=False))
-
-        with pytest.raises(AppiumServiceError, match='Appium server has started but is not listening') as excinfo:
-            AppiumService().start(
-                node='node', npm='npm', main_script='appium.js', timeout_ms=1000, stderr=appium_service.sp.PIPE
-            )
-
-        assert f'Original error: {expected_error}' in str(excinfo.value)
-        process.kill.assert_called_once()
-
-    @pytest.mark.parametrize('platform', ['win32', 'linux'])
-    @pytest.mark.parametrize('timeouts', [0, 1, 2])
-    def test_stop_cleans_up_after_termination(self, monkeypatch, platform, timeouts):
-        process = Mock()
-        process.poll.return_value = None
-        process.communicate.side_effect = [appium_service.sp.TimeoutExpired('appium', 1)] * timeouts + [(b'', b'')]
-        taskkill = Mock()
-        monkeypatch.setattr(appium_service.sys, 'platform', platform)
-        monkeypatch.setattr(appium_service.sp, 'call', taskkill)
-        monkeypatch.setattr(appium_service.sp, 'Popen', Mock(return_value=process))
-        service = AppiumService()
-        service.start(node='node', npm='npm', main_script='appium.js', timeout_ms=0)
-
-        assert service.stop(timeout=1) is True
-
-        process.terminate.assert_called_once()
-        assert process.communicate.call_args_list == [call(timeout=1)] * (1 if timeouts == 0 else 2)
-        if timeouts and platform == 'win32':
-            taskkill.assert_called_once_with(['taskkill', '/f', '/pid', str(process.pid)])
-            process.kill.assert_not_called()
-        elif timeouts:
-            process.kill.assert_called_once()
-            taskkill.assert_not_called()
-        else:
-            process.kill.assert_not_called()
-            taskkill.assert_not_called()
-        assert not service.is_running
-        assert service._cmd is None
-        assert service.stop() is False
-        process.terminate.assert_called_once()

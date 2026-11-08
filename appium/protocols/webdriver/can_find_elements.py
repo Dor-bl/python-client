@@ -14,8 +14,6 @@
 
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
-from selenium.webdriver.common.by import By
-
 if TYPE_CHECKING:
     from appium.webdriver.webelement import WebElement
 
@@ -29,6 +27,6 @@ class CanFindElements(Protocol):
     - find_elements(by, value): Find multiple elements
     """
 
-    def find_element(self, by: str | By = By.ID, value: str | dict | None = None) -> 'WebElement': ...
+    def find_element(self, by: str, value: str | dict | None = None) -> 'WebElement': ...
 
-    def find_elements(self, by: str | By = By.ID, value: str | dict | None = None) -> list['WebElement']: ...
+    def find_elements(self, by: str, value: str | dict | None = None) -> list['WebElement']: ...

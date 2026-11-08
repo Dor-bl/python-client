@@ -14,7 +14,6 @@
 
 import os
 import re
-import shutil
 import subprocess as sp
 import sys
 import time
@@ -27,7 +26,6 @@ from selenium.webdriver.remote.remote_connection import urllib3
 DEFAULT_HOST = '127.0.0.1'
 DEFAULT_PORT = 4723
 STARTUP_TIMEOUT_MS = 60000
-STOP_TIMEOUT_SEC = 5.5
 STATE_CHECK_INTERVAL_MS = 500
 MAIN_SCRIPT_PATH = 'appium/build/lib/main.js'
 STATUS_URL = '/status'
@@ -125,16 +123,15 @@ class AppiumService:
             error_msg = startup_failure_msg
         if error_msg is not None:
             if stderr == sp.PIPE and self._process.stderr is not None:
-                # The server might still be running, for example if it does not listen on the expected URL.
-                # Reading its stderr before the process exits would block forever, so terminate it first.
-                err_output = self._terminate_process(STOP_TIMEOUT_SEC)
+                # noinspection PyUnresolvedReferences
+                err_output = self._process.stderr.read()
                 if err_output:
                     error_msg += f'\nOriginal error: {str(err_output)}'
             self.stop()
             raise AppiumServiceError(error_msg)
         return self._process
 
-    def stop(self, timeout: float = STOP_TIMEOUT_SEC) -> bool:
+    def stop(self, timeout: float = 5.5) -> bool:
         """Stops Appium service if it is running.
 
         The call will be ignored if the service is not running
@@ -146,37 +143,21 @@ class AppiumService:
         Returns:
             `True` if the service was running before being stopped
         """
-        was_running = self.is_running
-        if was_running:
-            self._terminate_process(timeout)
-        else:
-            self._process = None
-            self._cmd = None
-        return was_running
-
-    def _terminate_process(self, timeout: float) -> bytes | str | None:
-        """Terminate the process and collect stderr within bounded waits."""
-        process = self._process
-        if process is None:
-            return None
-        try:
-            process.terminate()
+        was_running = False
+        if self.is_running:
+            assert self._process
+            was_running = True
+            self._process.terminate()
             try:
-                _, stderr = process.communicate(timeout=timeout)
+                self._process.communicate(timeout=timeout)
             except sp.SubprocessError:
                 if sys.platform == 'win32':
-                    sp.call(['taskkill', '/f', '/pid', str(process.pid)])
+                    sp.call(['taskkill', '/f', '/pid', str(self._process.pid)])
                 else:
-                    process.kill()
-                try:
-                    _, stderr = process.communicate(timeout=timeout)
-                except sp.TimeoutExpired as e:
-                    # Another process might still hold stderr open. Keep the output read so far.
-                    stderr = e.stderr
-            return stderr
-        finally:
-            self._process = None
-            self._cmd = None
+                    self._process.kill()
+        self._process = None
+        self._cmd = None
+        return was_running
 
     @property
     def is_running(self) -> bool:
@@ -243,15 +224,33 @@ def is_service_listening(url: str, timeout: float = 5, custom_validator: Callabl
     return False
 
 
+def find_executable(executable: str) -> str | None:
+    path = os.environ['PATH']
+    paths = path.split(os.pathsep)
+    _, ext = os.path.splitext(executable)
+    if sys.platform == 'win32' and not ext:
+        executable = executable + '.exe'
+
+    if os.path.isfile(executable):
+        return executable
+
+    for p in paths:
+        full_path = os.path.join(p, executable)
+        if os.path.isfile(full_path):
+            return full_path
+
+    return None
+
+
 def get_node() -> str:
-    result = shutil.which('node')
+    result = find_executable('node')
     if result is None:
         raise AppiumServiceError('NodeJS main executable cannot be found. Make sure it is installed and present in PATH')
     return result
 
 
 def get_npm() -> str:
-    result = shutil.which('npm')
+    result = find_executable('npm.cmd' if sys.platform == 'win32' else 'npm')
     if result is None:
         raise AppiumServiceError(
             'Node Package Manager executable cannot be found. Make sure it is installed and present in PATH'
@@ -331,6 +330,8 @@ def _make_server_url(args: list[str]) -> str:
 
 
 if __name__ == '__main__':
+    assert find_executable('node') is not None
+    assert find_executable('npm') is not None
     service = AppiumService()
     service.start(args=['--address', '127.0.0.1', '-p', str(DEFAULT_PORT)])
     # service.start(args=['--address', '127.0.0.1', '-p', '80'], timeout_ms=2000)

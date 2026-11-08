@@ -113,7 +113,7 @@ class Gsm(CanExecuteCommands, CanExecuteScripts):
         Returns:
             Union['WebDriver', 'Gsm']: Self instance
         """
-        ext_name = 'mobile: gsmVoice'
+        ext_name = 'mobile: gmsVoice'
         constants = extract_const_attributes(GsmVoiceState)
         if state not in constants.values():
             logger.warning(

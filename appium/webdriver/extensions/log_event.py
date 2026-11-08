@@ -13,8 +13,6 @@
 # limitations under the License.
 
 
-from typing import Any
-
 from typing_extensions import Self
 
 from appium.protocols.webdriver.can_execute_commands import CanExecuteCommands
@@ -23,7 +21,7 @@ from ..mobilecommand import MobileCommand as Command
 
 
 class LogEvent(CanExecuteCommands):
-    def get_events(self, type: list[str] | None = None) -> dict[str, Any]:
+    def get_events(self, type: list[str] | None = None) -> dict[str, str | int]:
         """Retrieves events information from the current session
         (Since Appium 1.16.0)
 
@@ -35,13 +33,11 @@ class LogEvent(CanExecuteCommands):
             | events = driver.get_events(['appium:funEvent'])
 
         Returns:
-            `dict`: A dictionary of events timing information. Every value is a list.
+            `dict`: A dictionary of events timing information containing the following entries
                 | commands: (`list` of `dict`) List of dictionaries containing the following entries
                 | cmd: The command name that has been sent to the appium server
                 | startTime: Received time
                 | endTime: Response time
-                | Each other key is an event name, such as 'appium:funEvent', and its value is
-                | the `list` of timestamps (`int`, milliseconds) when that event happened
         """
         data = {}
         if type is not None:

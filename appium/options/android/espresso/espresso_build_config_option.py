@@ -40,7 +40,7 @@ class EspressoBuildConfigOption(SupportsCapabilities):
         """
         This config allows to customize several important properties of
         Espresso server. Refer to
-        https://appium.github.io/appium-espresso-driver/latest/reference/capabilities/#espressobuildconfig
+        https://github.com/appium/appium-espresso-driver#espresso-build-config
         for more information on how to properly construct such config.
         """
         self.set_capability(ESPRESSO_BUILD_CONFIG, value if isinstance(value, str) else json.dumps(value, ensure_ascii=False))

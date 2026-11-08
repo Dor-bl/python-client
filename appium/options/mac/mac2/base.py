@@ -56,7 +56,7 @@ class Mac2Options(
         A mapping containing either 'script' or 'command' key. The value of
         each key must be a valid AppleScript script or command to be
         executed after before Mac2Driver session is started. See
-        https://appium.github.io/appium-mac2-driver/latest/reference/capabilities/#prerun
+        https://github.com/appium/appium-mac2-driver#applescript-commands-execution
         for more details.
         """
         PrerunOption.prerun.fset(self, value)  # type: ignore
@@ -67,7 +67,7 @@ class Mac2Options(
         A mapping containing either 'script' or 'command' key. The value of
         each key must be a valid AppleScript script or command to be
         executed after Mac2Driver session is stopped. See
-        https://appium.github.io/appium-mac2-driver/latest/reference/capabilities/#postrun
+        https://github.com/appium/appium-mac2-driver#applescript-commands-execution
         for more details.
         """
         PostrunOption.postrun.fset(self, value)  # type: ignore
