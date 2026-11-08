@@ -66,6 +66,7 @@ from .webelement import WebElement as MobileWebElement
 
 if TYPE_CHECKING:
     from selenium.webdriver.common.by import By
+    from selenium.webdriver.support.relative_locator import RelativeBy
 
 
 class ExtensionBase:
@@ -74,7 +75,7 @@ class ExtensionBase:
 
     Example:
         When you want to add `example_command` which calls a get request to
-        `session/$sessionId/path/to/your/custom/url`.
+        `/session/$sessionId/path/to/your/custom/url`.
 
         #. Defines an extension as a subclass of `ExtensionBase`
             .. code-block:: python
@@ -91,7 +92,7 @@ class ExtensionBase:
 
                     # Used to register the command pair as "Appium command" in this driver.
                     def add_command(self):
-                        return ('GET', 'session/$sessionId/path/to/your/custom/url')
+                        return ('GET', '/session/$sessionId/path/to/your/custom/url')
 
         #. Creates a session with the extension.
             .. code-block:: python
@@ -105,7 +106,7 @@ class ExtensionBase:
             .. code-block:: python
 
                 # Then, the driver calls a get request against
-                # `session/$sessionId/path/to/your/custom/url`. `$sessionId` will be
+                # `/session/$sessionId/path/to/your/custom/url`. `$sessionId` will be
                 # replaced properly in the driver. Then, the method returns
                 # the `value` part of the response.
                 driver.custom_method_name()
@@ -127,16 +128,16 @@ class ExtensionBase:
                 def method_name(self):
                     return 'custom_method_name'
 
-                def test_command(self, argument):
+                def custom_method_name(self, argument):
                     return self.execute(argument)['value']
 
                 def add_command(self):
-                    return ('post', 'session/$sessionId/path/to/your/custom/url')
+                    return ('post', '/session/$sessionId/path/to/your/custom/url')
 
             driver = webdriver.Remote('http://localhost:4723/wd/hub', options=options,
                 extensions=[YourCustomCommand])
 
-            # Then, the driver sends a post request to `session/$sessionId/path/to/your/custom/url`
+            # Then, the driver sends a post request to `/session/$sessionId/path/to/your/custom/url`
             # with `{'dummy_arg': 'as a value'}` JSON body.
             driver.custom_method_name({'dummy_arg': 'as a value'})
 
@@ -153,13 +154,13 @@ class ExtensionBase:
                     return self.execute({'id': element_id})['value']
 
                 def add_command(self):
-                    return ('GET', 'session/$sessionId/path/to/your/custom/$id/url')
+                    return ('GET', '/session/$sessionId/path/to/your/custom/$id/url')
 
             driver = webdriver.Remote('http://localhost:4723/wd/hub', options=options,
-                extensions=[YourCustomCommand])
+                extensions=[CustomURLCommand])
             element = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value='id')
 
-            # Then, the driver calls a get request to `session/$sessionId/path/to/your/custom/$id/url`
+            # Then, the driver calls a get request to `/session/$sessionId/path/to/your/custom/$id/url`
             # with replacing the `$id` with the given `element.id`
             driver.custom_method_name(element.id)
 
@@ -291,11 +292,11 @@ class WebDriver(
 
     if TYPE_CHECKING:
 
-        def find_element(self, by: str = By.ID, value: str | dict | None = None) -> 'MobileWebElement':  # type: ignore[override]
-            ...
+        def find_element(self, by: str | By | RelativeBy = By.ID, value: str | dict | None = None) -> 'MobileWebElement': ...
 
-        def find_elements(self, by: str = By.ID, value: str | dict | None = None) -> list['MobileWebElement']:  # type: ignore[override]
-            ...
+        def find_elements(  # type: ignore[override]
+            self, by: str | By | RelativeBy = By.ID, value: str | dict | None = None
+        ) -> list['MobileWebElement']: ...
 
     def delete_extensions(self) -> None:
         """Delete extensions added in the class with 'setattr'"""
@@ -314,11 +315,10 @@ class WebDriver(
 
         if not self.caps:
             raise ValueError('Driver capabilities must be defined')
-        if not {direct_protocol, direct_host, direct_port, direct_path}.issubset(set(self.caps)):
-            message = 'Direct connect capabilities from server were:\n'
-            for key in [direct_protocol, direct_host, direct_port, direct_path]:
-                message += f"{key}: '{self.caps.get(key, '')}' "
-            logger.debug(message)
+        keys = (direct_protocol, direct_host, direct_port, direct_path)
+        if not set(keys).issubset(self.caps):
+            details = ' '.join(f"{key}: '{self.caps.get(key, '')}'" for key in keys)
+            logger.debug(f'Direct connect capabilities from server were:\n{details} ')
             return
 
         protocol = self.caps[direct_protocol]
@@ -337,7 +337,7 @@ class WebDriver(
         client_config = copy.copy(self.command_executor.client_config)
         client_config.remote_server_addr = executor
         client_config.keep_alive = keep_alive
-        if isinstance(self.command_executor, AppiumConnection):  # type: ignore
+        if isinstance(self.command_executor, AppiumConnection):
             self.command_executor = AppiumConnection(client_config=client_config)
         else:
             self.command_executor = RemoteConnection(client_config=client_config)
@@ -458,8 +458,9 @@ class WebDriver(
                 driver.orientation = 'landscape'
         """
         allowed_values = ['LANDSCAPE', 'PORTRAIT']
-        if value.upper() in allowed_values:
-            self.execute(Command.SET_SCREEN_ORIENTATION, {'orientation': value})
+        v = value.upper()
+        if v in allowed_values:
+            self.execute(Command.SET_SCREEN_ORIENTATION, {'orientation': v})
         else:
             raise WebDriverException("You can only set the orientation to 'LANDSCAPE' and 'PORTRAIT'")
 
@@ -474,9 +475,8 @@ class WebDriver(
                     get_atter(self)
 
         self.command_executor.add_command(Command.GET_STATUS, 'GET', '/status')
+        MobileWebElement.add_commands(self.command_executor)
         self.command_executor.add_command(Command.GET_CAPABILITIES, 'GET', '/session/$sessionId')
 
         self.command_executor.add_command(Command.GET_SCREEN_ORIENTATION, 'GET', '/session/$sessionId/orientation')
         self.command_executor.add_command(Command.SET_SCREEN_ORIENTATION, 'POST', '/session/$sessionId/orientation')
-
-        MobileWebElement.add_commands(self.command_executor)
