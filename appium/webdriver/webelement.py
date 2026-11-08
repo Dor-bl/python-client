@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING
 
 from selenium.webdriver.common.utils import keys_to_typing
 from selenium.webdriver.remote.command import Command as RemoteCommand
+from selenium.webdriver.remote.remote_connection import RemoteConnection
 from selenium.webdriver.remote.webelement import WebElement as SeleniumWebElement
 from typing_extensions import Self
 
@@ -36,6 +37,25 @@ class WebElement(SeleniumWebElement):
 
         def find_elements(self, by: str | By = By.ID, value: str | dict | None = None) -> list[Self]:  # type: ignore[override]
             ...
+
+    @staticmethod
+    def add_commands(command_executor: RemoteConnection) -> None:
+        """Registers the element endpoints Appium supports on top of Selenium's.
+
+        Called once by the Appium WebDriver when it sets up its command executor.
+        """
+        command_executor.add_command(Command.CLEAR, 'POST', '/session/$sessionId/element/$id/clear')
+        command_executor.add_command(
+            Command.LOCATION_IN_VIEW,
+            'GET',
+            '/session/$sessionId/element/$id/location_in_view',
+        )
+        # MJSONWP for Selenium v4
+        command_executor.add_command(
+            Command.IS_ELEMENT_DISPLAYED,
+            'GET',
+            '/session/$sessionId/element/$id/displayed',
+        )
 
     def get_attribute(self, name: str) -> str | dict | None:  # type: ignore[override]
         """Gets the given attribute or property of the element.
