@@ -23,6 +23,9 @@ from typing_extensions import Self
 
 from .mobilecommand import MobileCommand as Command
 
+if TYPE_CHECKING:
+    from selenium.webdriver.common.by import By
+
 
 class WebElement(SeleniumWebElement):
     _execute: Callable
@@ -30,10 +33,9 @@ class WebElement(SeleniumWebElement):
 
     if TYPE_CHECKING:
 
-        def find_element(self, by: str, value: str | dict | None = None) -> Self:  # type: ignore[override]
-            ...
+        def find_element(self, by: str | By = By.ID, value: str | dict | None = None) -> Self: ...
 
-        def find_elements(self, by: str, value: str | dict | None = None) -> list[Self]:  # type: ignore[override]
+        def find_elements(self, by: str | By = By.ID, value: str | dict | None = None) -> list[Self]:  # type: ignore[override]
             ...
 
     def __init__(self, parent: Remote, id_: int | str) -> None:
