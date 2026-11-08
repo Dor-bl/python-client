@@ -14,31 +14,47 @@
 
 import logging
 import sys
+from collections.abc import Iterator
+
+import pytest
 
 from appium.common.logger import logger, setup_logger
 
 
-def test_setup_logger_default():
-    # Store initial state / handlers
+@pytest.fixture(autouse=True)
+def restore_logger() -> Iterator[None]:
+    # setup_logger mutates the shared module logger, so put it back after each test.
+    handlers = list(logger.handlers)
+    level = logger.level
+    propagate = logger.propagate
+    yield
+    logger.handlers[:] = handlers
+    logger.setLevel(level)
+    logger.propagate = propagate
+
+
+def test_setup_logger_default() -> None:
     handlers_before = list(logger.handlers)
 
     setup_logger()
 
     assert logger.propagate is False
     assert logger.level == logging.NOTSET
-    assert len(logger.handlers) > len(handlers_before)
+    assert len(logger.handlers) == len(handlers_before) + 1
 
     new_handler = logger.handlers[-1]
     assert isinstance(new_handler, logging.StreamHandler)
     assert new_handler.stream == sys.stderr
 
 
-def test_setup_logger_custom_level():
+def test_setup_logger_custom_level() -> None:
+    handlers_before = list(logger.handlers)
+
     setup_logger(level=logging.DEBUG)
 
     assert logger.propagate is False
     assert logger.level == logging.DEBUG
-    assert len(logger.handlers) > 0
+    assert len(logger.handlers) == len(handlers_before) + 1
 
     new_handler = logger.handlers[-1]
     assert isinstance(new_handler, logging.StreamHandler)
