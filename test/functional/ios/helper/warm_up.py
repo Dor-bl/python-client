@@ -15,13 +15,13 @@
 """Start and quit one Appium session so WebDriverAgent's first, slowest launch happens before the tests.
 
 Used by CI only. Failures are reported but don't fail the step: the tests retry on their own.
+It makes a single attempt, so that it always finishes within the step's 12-minute timeout.
 """
 
 import sys
 
 from appium import webdriver
 from appium.webdriver.client_config import AppiumClientConfig
-from test.functional.test_helper import create_session_with_wda_retry
 from test.helpers.constants import SERVER_URL_BASE
 
 from .options import make_options
@@ -33,7 +33,7 @@ def main() -> int:
     # session, so the first test's session request would queue behind it.
     client_config.timeout = 600
     try:
-        driver = create_session_with_wda_retry(lambda: webdriver.Remote(options=make_options(), client_config=client_config))
+        driver = webdriver.Remote(options=make_options(), client_config=client_config)
     except Exception as e:  # noqa: BLE001
         print(f'Warm-up session failed: {e}', file=sys.stderr)
         return 0
