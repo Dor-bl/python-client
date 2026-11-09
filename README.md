@@ -124,10 +124,12 @@ For example, some changes in the Selenium binding could break the Appium client.
     - `MultiAction` and `TouchAction` are deprecated. Please use W3C WebDriver actions or `mobile:` extensions
     - `launch_app`, `close_app`, and `reset` are deprecated. Please read [issues#15807](https://github.com/appium/appium/issues/15807) for more details
 
-#### MultiAction/TouchAction to W3C actions
+#### MultiAction/TouchAction and ActionHelpers Shortcuts to W3C Actions
+
+The interaction shortcut methods on `ActionHelpers` (`scroll`, `drag_and_drop`, `tap`, `swipe`, and `flick`) are deprecated because gesture behavior varies across drivers and pointer types (for example, Android UiAutomator2 handles `POINTER_TOUCH` and `POINTER_MOUSE` inputs differently in the underlying UIAutomator framework). Build W3C WebDriver actions directly with `ActionChains` / `ActionBuilder` instead.
 
 Some elements can be handled with `touch` pointer action instead of the default `mouse` pointer action in the Selenium Python client.
-For example, the below action builder is to replace the default one with the `touch` pointer action.
+For example, the below action builder is to replace the default one with the `touch` pointer action:
 
 ```python
 from selenium.webdriver import ActionChains
@@ -136,7 +138,7 @@ from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.actions.pointer_input import PointerInput
 
 actions = ActionChains(driver)
-# override as 'touch' pointer action
+# override as 'touch' pointer action (or use interaction.POINTER_MOUSE for mouse input)
 actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, 'touch'))
 actions.w3c_actions.pointer_action.move_to_location(start_x, start_y)
 actions.w3c_actions.pointer_action.pointer_down()
@@ -202,7 +204,7 @@ def appium_service():
 
 def create_ios_driver(custom_opts=None):
     options = XCUITestOptions()
-    options.platformVersion = '13.4'
+    options.platform_version = '13.4'
     options.udid = '123456789ABC'
     if custom_opts is not None:
         options.load_capabilities(custom_opts)
@@ -212,7 +214,7 @@ def create_ios_driver(custom_opts=None):
 
 def create_android_driver(custom_opts=None):
     options = UiAutomator2Options()
-    options.platformVersion = '10'
+    options.platform_version = '10'
     options.udid = '123456789ABC'
     if custom_opts is not None:
         options.load_capabilities(custom_opts)
@@ -378,15 +380,20 @@ from appium.options.ios import XCUITestOptions
 
 import urllib3
 from appium.webdriver.appium_connection import AppiumConnection
+from appium.webdriver.client_config import AppiumClientConfig
 
 # Retry connection error up to 3 times.
-init_args_for_pool_manage = {'retries': urllib3.util.retry.Retry(total=3, connect=3, read=False)}
-appium_executor = AppiumConnection(
-    remote_server_addr='http://127.0.0.1:4723', init_args_for_pool_manage=init_args_for_pool_manage
+# Selenium passes the arguments under the nested 'init_args_for_pool_manager' key to urllib3.PoolManager.
+init_args_for_pool_manager = {
+    'init_args_for_pool_manager': {'retries': urllib3.util.retry.Retry(total=3, connect=3, read=False)}
+}
+client_config = AppiumClientConfig(
+    remote_server_addr='http://127.0.0.1:4723', init_args_for_pool_manager=init_args_for_pool_manager
 )
+appium_executor = AppiumConnection(client_config=client_config)
 
 options = XCUITestOptions()
-options.platformVersion = '13.4'
+options.platform_version = '13.4'
 options.udid = '123456789ABC'
 options.app = '/full/path/to/app/UICatalog.app.zip'
 driver = webdriver.Remote(appium_executor, options=options)

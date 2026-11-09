@@ -2,6 +2,162 @@
 
 <!-- version list -->
 
+## v6.1.5 (2026-11-06)
+
+### Bug Fixes
+
+- **typing**: Refine WebDriver, WebElement, MobileSwitchTo, and AppiumBy type annotations
+  ([#1357](https://github.com/appium/python-client/pull/1357),
+  [`1474968`](https://github.com/appium/python-client/commit/1474968d085bcebf7435cfc151f61bf1b24028cd))
+
+### Continuous Integration
+
+- **deps**: Bump certifi from 2026.6.17 to 2026.10.18
+  ([#1339](https://github.com/appium/python-client/pull/1339),
+  [`2d83775`](https://github.com/appium/python-client/commit/2d8377505b672ad4312630f1dec6b848ee34a897))
+
+- **deps**: Bump urllib3 from 2.7.0 to 2.8.0
+  ([#1318](https://github.com/appium/python-client/pull/1318),
+  [`e2509a0`](https://github.com/appium/python-client/commit/e2509a0e8f5024312954637fc0d4bd084c5c7a1d))
+
+
+## v6.1.4 (2026-11-02)
+
+### Bug Fixes
+
+- **flutter**: Accept a FlutterFinder as scrollView in scroll_till_visible
+  ([#1352](https://github.com/appium/python-client/pull/1352),
+  [`1ac4254`](https://github.com/appium/python-client/commit/1ac4254acd804171ebc091f333c09e54b6715110))
+
+### Testing
+
+- **webdriver**: Add unit tests for HardwareActions.unlock
+  ([#1331](https://github.com/appium/python-client/pull/1331),
+  [`9c723e8`](https://github.com/appium/python-client/commit/9c723e8c1d455216e945d7a709ca7437479bc097))
+
+
+## v6.1.3 (2026-11-02)
+
+### Bug Fixes
+
+- **flutter**: Support horizontal scrolling in scroll_till_visible
+  ([#1351](https://github.com/appium/python-client/pull/1351),
+  [`ae9042d`](https://github.com/appium/python-client/commit/ae9042dcabd6c6b6967f938b8bbb38683f58ded1))
+
+### Documentation
+
+- Fix broken README and docstring examples
+  ([#1350](https://github.com/appium/python-client/pull/1350),
+  [`6e0bf47`](https://github.com/appium/python-client/commit/6e0bf47fc8e0fb3f6737f79bd9d07fb7d53d23fc))
+
+
+## v6.1.2 (2026-11-01)
+
+### Bug Fixes
+
+- Correct return types of image comparison and get_events
+  ([#1347](https://github.com/appium/python-client/pull/1347),
+  [`16fc1f3`](https://github.com/appium/python-client/commit/16fc1f3807e9c05b55549585de6f3d225c72fba6))
+
+- Correct screen recording return types and documented options
+  ([#1346](https://github.com/appium/python-client/pull/1346),
+  [`b92ec44`](https://github.com/appium/python-client/commit/b92ec444ab68f0588edff3608e5bf7d4d4251073))
+
+### Continuous Integration
+
+- **deps**: Bump astral-sh/setup-uv from 10.3.1 to 10.3.3
+  ([#1348](https://github.com/appium/python-client/pull/1348),
+  [`f7143a7`](https://github.com/appium/python-client/commit/f7143a75fa13a6edb544f486c9572459f4b08ace))
+
+### Refactoring
+
+- Consolidate the process end handling ([#1349](https://github.com/appium/python-client/pull/1349),
+  [`6abcf22`](https://github.com/appium/python-client/commit/6abcf22581928377bdc43aab083ddd6667564923))
+
+
+## v6.1.1 (2026-10-31)
+
+### Bug Fixes
+
+- Keep the server's error output when it ignores terminate
+  ([#1342](https://github.com/appium/python-client/pull/1342),
+  [`4442366`](https://github.com/appium/python-client/commit/4442366d3bd5b82a063d38836054070c3720ccab))
+
+- Prevent AppiumService.start from hanging when the server fails to start
+  ([#1342](https://github.com/appium/python-client/pull/1342),
+  [`4442366`](https://github.com/appium/python-client/commit/4442366d3bd5b82a063d38836054070c3720ccab))
+
+
+## v6.1.0 (2026-10-31)
+
+### Features
+
+- Mark ActionHelpers interaction shortcuts as deprecated
+  ([#1333](https://github.com/appium/python-client/pull/1333),
+  [`cd224d9`](https://github.com/appium/python-client/commit/cd224d96597c2134776029b6697f43adce0c49c9))
+
+
+## v6.0.12 (2026-10-31)
+
+### Bug Fixes
+
+- Isolate Appium session idempotency keys
+  ([#1338](https://github.com/appium/python-client/pull/1338),
+  [`07b2360`](https://github.com/appium/python-client/commit/07b23604872c12b45de5630014b1459da6f0388c))
+
+### Documentation
+
+- Clean up Sphinx API doc generation and ExecuteDriver.Result typing
+  ([#1334](https://github.com/appium/python-client/pull/1334),
+  [`50dd05b`](https://github.com/appium/python-client/commit/50dd05befd6538cb46c8cec14d6d2f1b06598e01))
+
+
+## v6.0.11 (2026-10-31)
+
+### Bug Fixes
+
+- **options**: Return Flutter timeout options as timedelta
+  ([#1343](https://github.com/appium/python-client/pull/1343),
+  [`a4d911f`](https://github.com/appium/python-client/commit/a4d911f317074c6038fd4e499b6fcf108fa4d1e3))
+
+
+## v6.0.10 (2026-10-31)
+
+### Bug Fixes
+
+- **options**: Type wait_for_quiescence setter as bool
+  ([#1344](https://github.com/appium/python-client/pull/1344),
+  [`20b529e`](https://github.com/appium/python-client/commit/20b529ee4c97de9a1147ccd6f9087bac82232d02))
+
+### Continuous Integration
+
+- **deps**: Bump astral-sh/setup-uv from 10.3.0 to 10.3.1
+  ([#1330](https://github.com/appium/python-client/pull/1330),
+  [`ce054d4`](https://github.com/appium/python-client/commit/ce054d4fbd2d87a9fee23e00d3198391c605a94d))
+
+- **deps**: Bump virtualenv from 21.7.13 to 21.14.13
+  ([#1332](https://github.com/appium/python-client/pull/1332),
+  [`2c80c45`](https://github.com/appium/python-client/commit/2c80c4580bfa3bd3d63fbefdac3f07612ea42861))
+
+- **deps-dev**: Bump python-dateutil from 2.9.0.post0 to 3.0.0
+  ([#1337](https://github.com/appium/python-client/pull/1337),
+  [`909d3f7`](https://github.com/appium/python-client/commit/909d3f710e4f29e0e456871921b4a03744729ac8))
+
+- **deps-dev**: Bump ruff from 0.17.1 to 0.17.2
+  ([#1336](https://github.com/appium/python-client/pull/1336),
+  [`8c75ef3`](https://github.com/appium/python-client/commit/8c75ef3f317449dcc5b3257d257b73d86ecac3da))
+
+- **deps-dev**: Bump types-python-dateutil
+  ([#1335](https://github.com/appium/python-client/pull/1335),
+  [`9ee7d05`](https://github.com/appium/python-client/commit/9ee7d0545c5aaa0f61520d2319c0fd355db8d915))
+
+### Refactoring
+
+- Simplify executable lookup using shutil.which
+  ([#1329](https://github.com/appium/python-client/pull/1329),
+  [`3392743`](https://github.com/appium/python-client/commit/339274327e7ae3b4064ad6ac92d28c7c25e9fad5))
+
+
 ## v6.0.9 (2026-10-24)
 
 ### Bug Fixes

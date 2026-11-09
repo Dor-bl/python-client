@@ -59,7 +59,7 @@ jobs:
         python-version: '3.14'
 
     - name: Set up uv
-      uses: astral-sh/setup-uv@v10.3.1
+      uses: astral-sh/setup-uv@v10.3.3
       with:
         enable-cache: true
         python-version: '3.14'
@@ -217,7 +217,7 @@ jobs:
         python-version: '3.14'
 
     - name: Set up uv
-      uses: astral-sh/setup-uv@v10.3.1
+      uses: astral-sh/setup-uv@v10.3.3
       with:
         enable-cache: true
         python-version: '3.14'
@@ -300,7 +300,7 @@ jobs:
         python-version: '3.14'
 
     - name: Set up uv
-      uses: astral-sh/setup-uv@v10.3.1
+      uses: astral-sh/setup-uv@v10.3.3
       with:
         enable-cache: true
         python-version: '3.14'
