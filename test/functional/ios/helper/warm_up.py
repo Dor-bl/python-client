@@ -37,7 +37,11 @@ def main() -> int:
     except Exception as e:  # noqa: BLE001
         print(f'Warm-up session failed: {e}', file=sys.stderr)
         return 0
-    driver.quit()
+    try:
+        driver.quit()
+    except Exception as e:  # noqa: BLE001
+        print(f'Warm-up session started but failed to quit: {e}', file=sys.stderr)
+        return 0
     print('Warm-up session started and quit successfully')
     return 0
 
