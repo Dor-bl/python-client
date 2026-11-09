@@ -29,7 +29,9 @@ from .options import make_options
 
 def main() -> int:
     client_config = AppiumClientConfig(remote_server_addr=SERVER_URL_BASE)
-    client_config.timeout = 300
+    # Match the tests' timeout: giving up earlier would leave the server still creating this
+    # session, so the first test's session request would queue behind it.
+    client_config.timeout = 600
     try:
         driver = create_session_with_wda_retry(lambda: webdriver.Remote(options=make_options(), client_config=client_config))
     except Exception as e:  # noqa: BLE001
