@@ -15,7 +15,7 @@
 """Start and quit one Appium session so WebDriverAgent's first, slowest launch happens before the tests.
 
 Used by CI only. Failures are reported but don't fail the step: the tests retry on their own.
-It makes a single attempt, so that it always finishes within the step's 12-minute timeout.
+It makes a single attempt, so that it normally finishes within the step's 12-minute timeout.
 """
 
 import sys
@@ -38,8 +38,9 @@ def main() -> int:
         print(f'Warm-up session failed: {e}', file=sys.stderr)
         return 0
     # Give teardown its own short budget, so a session that started near the 600 s limit
-    # still finishes within the step's 12-minute timeout, even if urllib3 retries the
-    # request three times: 600 s + 4 x 15 s leaves a minute of margin.
+    # normally still finishes within the step's 12-minute timeout, even if urllib3 retries
+    # the request three times (600 s + 4 x 15 s). This is a margin, not a hard deadline:
+    # the timeout applies per socket read, so a server that keeps trickling data can exceed it.
     client_config.timeout = 15
     try:
         driver.quit()
