@@ -18,6 +18,7 @@ import tempfile
 import httpretty
 
 from appium.protocols.webdriver.can_find_elements import CanFindElements
+from appium.webdriver.mobilecommand import MobileCommand
 from appium.webdriver.webelement import WebElement as MobileWebElement
 from test.unit.helper.test_helper import android_w3c_driver, appium_command, get_httpretty_request_body
 
@@ -149,3 +150,29 @@ class TestWebElement:
 
         assert isinstance(element, CanFindElements)
         assert isinstance(driver, CanFindElements)
+
+    @httpretty.activate
+    def test_is_displayed(self):
+        driver = android_w3c_driver()
+        httpretty.register_uri(
+            httpretty.GET,
+            appium_command('/session/1234567890/element/element_id/displayed'),
+            body=json.dumps({'value': True}),
+        )
+
+        element = MobileWebElement(driver, 'element_id')
+        assert element.is_displayed() is True
+
+    @httpretty.activate
+    def test_element_commands_registered_on_driver(self):
+        # The element endpoints are registered with the driver, so they work before any element exists.
+        driver = android_w3c_driver()
+        httpretty.register_uri(
+            httpretty.POST,
+            appium_command('/session/1234567890/element/element_id/clear'),
+            body=json.dumps({'value': None}),
+        )
+
+        driver.execute(MobileCommand.CLEAR, {'id': 'element_id'})
+
+        assert httpretty.last_request().path.endswith('/session/1234567890/element/element_id/clear')
