@@ -38,8 +38,9 @@ def main() -> int:
         print(f'Warm-up session failed: {e}', file=sys.stderr)
         return 0
     # Give teardown its own short budget, so a session that started near the 600 s limit
-    # still finishes within the step's 12-minute timeout.
-    client_config.timeout = 30
+    # still finishes within the step's 12-minute timeout, even if urllib3 retries the
+    # request three times: 600 s + 4 x 15 s leaves a minute of margin.
+    client_config.timeout = 15
     try:
         driver.quit()
     except Exception as e:  # noqa: BLE001
